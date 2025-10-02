@@ -32,3 +32,9 @@ project(":model").projectDir = file("./domain/model")
 
 include(":usecase")
 project(":usecase").projectDir = file("./domain/usecase")
+
+include(":rest-api")
+project(":rest-api").projectDir = file("./infrastructure/entry-points/rest-api")
+
+include(":jpa-repository")
+project(":jpa-repository").projectDir = file("./infrastructure/driven-adapters/jpa-repository")
