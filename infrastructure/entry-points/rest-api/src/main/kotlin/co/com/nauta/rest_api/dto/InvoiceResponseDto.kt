@@ -1,5 +1,6 @@
 package co.com.nauta.rest_api.dto
 
+import java.time.LocalDateTime
 import java.util.UUID
 
 /**
@@ -10,7 +11,7 @@ data class InvoiceResponseDto(
     val invoiceCode: String,
     val clientId: UUID,
     val orderId: UUID? = null,
-    val amount: String,
-    val createdAt: String,
-    val updatedAt: String
+    val amount: String? = null,
+    val createdAt: LocalDateTime?,
+    val updatedAt: LocalDateTime?
 )

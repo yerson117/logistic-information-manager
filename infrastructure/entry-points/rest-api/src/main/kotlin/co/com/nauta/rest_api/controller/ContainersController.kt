@@ -29,12 +29,16 @@ class ContainersController(
 
     @GetMapping
     fun getContainersByClient(
-        authentication: Authentication,
+        authentication: Authentication?,
         @RequestParam(defaultValue = "0") page: Int,
         @RequestParam(defaultValue = "20") size: Int,
         @RequestParam(required = false) sort: String?
     ): ResponseEntity<PageResponseDto<ContainerResponseDto>> {
         return try {
+            if (authentication == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()
+            }
+            
             val userId = authentication.name
             val clientUuid = UUID.fromString(userId)
             
@@ -69,13 +73,17 @@ class ContainersController(
 
     @GetMapping("/{containerId}/orders")
     fun getOrdersByContainer(
-        authentication: Authentication,
+        authentication: Authentication?,
         @PathVariable containerId: String,
         @RequestParam(defaultValue = "0") page: Int,
         @RequestParam(defaultValue = "20") size: Int,
         @RequestParam(required = false) sort: String?
     ): ResponseEntity<PageResponseDto<OrderResponseDto>> {
         return try {
+            if (authentication == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()
+            }
+            
             val userId = authentication.name
             val clientUuid = UUID.fromString(userId)
             val containerUuid = UUID.fromString(containerId)

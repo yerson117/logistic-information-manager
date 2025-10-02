@@ -39,10 +39,13 @@ subprojects {
         testCompileOnly("org.projectlombok:lombok:1.18.38")
         testAnnotationProcessor("org.projectlombok:lombok:1.18.38")
 
+        // JUnit 5 - Usar las versiones de Spring Boot BOM
+        testImplementation("org.springframework.boot:spring-boot-starter-test")
+        testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+        
         testImplementation(kotlin("test"))
         testImplementation("io.mockk:mockk:1.13.3")
         testImplementation("org.mockito:mockito-junit-jupiter")
-        testImplementation("org.junit.jupiter:junit-jupiter-params")
         testImplementation("org.mockito.kotlin:mockito-kotlin:3.2.0")
     }
 
@@ -105,8 +108,15 @@ configure(project.subprojects.filter { it != project(":model") && it != project(
         api("org.mapstruct:mapstruct:1.5.2.Final")
         kapt("org.mapstruct:mapstruct-processor:1.5.2.Final")
 
-        testImplementation("com.ninja-squad:springmockk:4.0.0")
+        // JUnit 5 - Usar las versiones de Spring Boot BOM
         testImplementation("org.springframework.boot:spring-boot-starter-test")
+        testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+        
+        testImplementation(kotlin("test"))
+        testImplementation("io.mockk:mockk:1.13.3")
+        testImplementation("org.mockito:mockito-junit-jupiter")
+        testImplementation("org.mockito.kotlin:mockito-kotlin:3.2.0")
+        testImplementation("org.springframework.security:spring-security-test")
     }
 
     configurations {

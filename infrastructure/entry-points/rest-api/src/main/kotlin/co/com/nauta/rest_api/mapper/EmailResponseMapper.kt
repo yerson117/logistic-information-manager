@@ -27,8 +27,8 @@ class EmailResponseMapper {
             bookingId = booking.uuid,
             bookingCode = booking.bookingCode ?: "",
             clientId = booking.clientId ?: UUID.randomUUID(),
-            createdAt = booking.createdAt?.toString() ?: "",
-            updatedAt = booking.updatedAt?.toString() ?: ""
+            createdAt = booking.createdAt!!,
+            updatedAt = booking.updatedAt!!
         )
     }
 
@@ -41,8 +41,8 @@ class EmailResponseMapper {
             containerCode = container.containerCode ?: "",
             clientId = container.clientId ?: UUID.randomUUID(),
             bookingId = container.bookingId,
-            createdAt = container.createdAt?.toString() ?: "",
-            updatedAt = container.updatedAt?.toString() ?: ""
+            createdAt = container.createdAt,
+            updatedAt = container.updatedAt,
         )
     }
 
@@ -55,8 +55,8 @@ class EmailResponseMapper {
             purchaseCode = order.purchaseCode ?: "",
             clientId = order.clientId ?: UUID.randomUUID(),
             bookingId = order.bookingId,
-            createdAt = order.createdAt?.toString() ?: "",
-            updatedAt = order.updatedAt?.toString() ?: "",
+            createdAt = order.createdAt,
+            updatedAt = order.updatedAt,
             invoices = invoices.map { toInvoiceResponseDto(it) }
         )
     }
@@ -71,8 +71,8 @@ class EmailResponseMapper {
             clientId = invoice.clientId ?: UUID.randomUUID(),
             orderId = invoice.orderId,
             amount = invoice.amount?.toString() ?: "0",
-            createdAt = invoice.createdAt?.toString() ?: "",
-            updatedAt = invoice.updatedAt?.toString() ?: ""
+            createdAt = invoice.createdAt,
+            updatedAt = invoice.updatedAt
         )
     }
     
