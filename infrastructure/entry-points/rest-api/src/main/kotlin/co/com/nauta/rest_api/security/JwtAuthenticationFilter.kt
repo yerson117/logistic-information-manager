@@ -9,6 +9,7 @@ import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource
 import org.springframework.stereotype.Component
 import org.springframework.web.filter.OncePerRequestFilter
+import java.util.Objects.nonNull
 
 /**
  * JWT Authentication Filter
@@ -35,7 +36,7 @@ class JwtAuthenticationFilter(
             val token = authHeader.substring(7) // Remove "Bearer " prefix
             val userId = jwtService.extractUserId(token)
             
-            if (userId.isNotEmpty() && SecurityContextHolder.getContext().authentication == null) {
+            if (nonNull(userId)  && SecurityContextHolder.getContext().authentication == null) {
                 // Validate token and checksum
                 if (jwtService.validateToken(token, userId)) {
                     // Create authentication object

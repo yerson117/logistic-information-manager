@@ -72,7 +72,7 @@ class EmailController(
     )
     @SecurityRequirement(name = "bearerAuth")
     fun processEmail(
-        @Parameter(hidden = true) authentication: Authentication,
+        @Parameter(hidden = true) authentication: Authentication?,
         @io.swagger.v3.oas.annotations.parameters.RequestBody(
             description = "Datos de información logística a procesar"
         )
@@ -80,14 +80,17 @@ class EmailController(
     ): ResponseEntity<ProcessEmailResponseDto> {
 
         return try {
-            // Get userId from JWT authentication
+            if (authentication == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
+                    ProcessEmailResponseDto(message = "Authentication required")
+                )
+            }
+            
             val userId = authentication.name
             val clientUuid = UUID.fromString(userId)
-            
-            // Convert DTO to domain objects using MapStruct
+
             val domainObjects = emailRequestMapper.toDomainObjects(emailRequestDto, clientUuid)
-            
-            // Process using domain objects
+
             val result = processEmailUseCase.processEmail(
                 domainObjects.booking,
                 domainObjects.containers,
@@ -95,8 +98,7 @@ class EmailController(
                 domainObjects.containerRelations,
                 domainObjects.orderRelations
             )
-            
-            // Convert domain result to response DTO using MapStruct
+
             val responseDto = emailResponseMapper.toResponseDto(
                 result.booking,
                 result.containers,
@@ -105,15 +107,15 @@ class EmailController(
             )
             
             ResponseEntity.ok(responseDto)
-            
-                } catch (e: IllegalArgumentException) {
-                    ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                        ProcessEmailResponseDto(message = "Invalid user ID format")
-                    )
-                } catch (e: Exception) {
-                    ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-                        ProcessEmailResponseDto(message = "Internal server error: ${e.message}")
-                    )
-                }
+
+        } catch (e: IllegalArgumentException) {
+            ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                ProcessEmailResponseDto(message = "Invalid user ID format")
+            )
+        } catch (e: Exception) {
+            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                ProcessEmailResponseDto(message = "Internal server error: ${e.message}")
+            )
+        }
     }
 }

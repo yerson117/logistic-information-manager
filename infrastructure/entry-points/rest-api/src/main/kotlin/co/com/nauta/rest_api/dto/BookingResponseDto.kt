@@ -1,5 +1,6 @@
 package co.com.nauta.rest_api.dto
 
+import java.time.LocalDateTime
 import java.util.UUID
 
 /**
@@ -9,6 +10,6 @@ data class BookingResponseDto(
     val bookingId: UUID,
     val bookingCode: String,
     val clientId: UUID,
-    val createdAt: String,
-    val updatedAt: String
+    val createdAt: LocalDateTime?,
+    val updatedAt: LocalDateTime?
 )

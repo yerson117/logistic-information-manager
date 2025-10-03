@@ -26,12 +26,16 @@ class OrdersController(
 
     @GetMapping
     fun getOrdersByClient(
-        authentication: Authentication,
+        authentication: Authentication?,
         @RequestParam(defaultValue = "0") page: Int,
         @RequestParam(defaultValue = "20") size: Int,
         @RequestParam(required = false) sort: String?
     ): ResponseEntity<PageResponseDto<OrderResponseDto>> {
         return try {
+            if (authentication == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()
+            }
+            
             val userId = authentication.name
             val clientUuid = UUID.fromString(userId)
             
@@ -67,13 +71,17 @@ class OrdersController(
 
     @GetMapping("/{purchaseId}/containers")
     fun getContainersByOrder(
-        authentication: Authentication,
+        authentication: Authentication?,
         @PathVariable purchaseId: String,
         @RequestParam(defaultValue = "0") page: Int,
         @RequestParam(defaultValue = "20") size: Int,
         @RequestParam(required = false) sort: String?
     ): ResponseEntity<PageResponseDto<co.com.nauta.rest_api.dto.ContainerResponseDto>> {
         return try {
+            if (authentication == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()
+            }
+            
             val userId = authentication.name
             val clientUuid = UUID.fromString(userId)
             
