@@ -5,6 +5,7 @@ import co.com.nauta.model.bo.Container
 import co.com.nauta.model.bo.Invoice
 import co.com.nauta.model.bo.Order
 import co.com.nauta.rest_api.dto.ContainerRequestDto
+import co.com.nauta.rest_api.dto.EmailDomainObjects
 import co.com.nauta.rest_api.dto.EmailRequestDto
 import co.com.nauta.rest_api.dto.InvoiceRequestDto
 import co.com.nauta.rest_api.dto.OrderRequestDto
@@ -98,12 +99,3 @@ class EmailRequestMapper {
         }
     }
 }
-
-data class EmailDomainObjects(
-    val booking: Booking?,
-    val containers: List<Container>,
-    val orders: List<Pair<Order, List<Invoice>>>,
-    val containerRelations: List<ContainerRelation>,
-    val orderRelations: List<OrderRelation>
-)
-

@@ -28,7 +28,7 @@ class JwtService {
     /**
      * Generate JWT token with userId and checksum
      */
-    fun generateToken(userId: String): String {
+    fun generateToken(userId: UUID): String {
         val now = Date()
         val expirationDate = Date(now.time + expiration.toLong())
         
@@ -36,7 +36,7 @@ class JwtService {
         val checksum = generateChecksum(userId)
         
         return Jwts.builder()
-            .subject(userId)
+            .subject(userId.toString())
             .claim("userId", userId)
             .claim("checksum", checksum)
             .issuedAt(now)
@@ -48,8 +48,8 @@ class JwtService {
     /**
      * Extract userId from JWT token
      */
-    fun extractUserId(token: String): String {
-        return extractClaim(token) { it.subject }
+    fun extractUserId(token: String): UUID {
+        return  UUID.fromString(extractClaim(token) { it.subject })
     }
 
     /**
@@ -62,7 +62,7 @@ class JwtService {
     /**
      * Validate JWT token and checksum integrity
      */
-    fun validateToken(token: String, userId: String): Boolean {
+    fun validateToken(token: String, userId: UUID): Boolean {
         return try {
             val extractedUserId = extractUserId(token)
             val extractedChecksum = extractChecksum(token)
@@ -112,7 +112,7 @@ class JwtService {
      * Generate checksum for data integrity validation
      * This creates a hash based on userId and a secret salt
      */
-    private fun generateChecksum(userId: String): String {
+    private fun generateChecksum(userId: UUID): String {
         val salt = "nauta_logistics_2025"
         val dataToHash = "$userId:$salt:${System.currentTimeMillis() / (1000 * 60 * 60 * 24)}" // Daily rotation
         return dataToHash.hashCode().toString()
