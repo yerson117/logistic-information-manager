@@ -29,7 +29,7 @@ class ClientController(
     private val updateClientUseCase: UpdateClientUseCase
 ) {
     
-    @PostMapping(consumes = [MediaType.APPLICATION_JSON_VALUE])
+    @PostMapping("/register",consumes = [MediaType.APPLICATION_JSON_VALUE])
     @Operation(
         summary = "Crear cliente",
         description = "Crea un nuevo cliente en el sistema"
