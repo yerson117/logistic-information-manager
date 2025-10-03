@@ -290,7 +290,7 @@ Autentica un usuario y genera un token JWT.
 
 ### 👥 **Client Management Endpoints**
 
-#### **POST /api/clients** (SIN AUTENTICACIÓN - Solo para crear cliente inicial)
+#### **POST /api/clients/register** (SIN AUTENTICACIÓN - Solo para crear cliente inicial)
 Crea un nuevo cliente en el sistema.
 
 **Request Body:**
@@ -334,44 +334,79 @@ Authorization: Bearer <JWT_TOKEN>
 Content-Type: application/json
 ```
 
-**Request Body (Booking):**
+**Request Body (Solo Booking):**
 ```json
 {
-  "clientId": "3e0a39aa-1dd5-4103-903c-f59ffd7f6f93",
-  "bookingCode": "BK001",
-  "bookingType": "BOOKING"
+  "booking": "BK001"
 }
 ```
 
-**Request Body (Container):**
+**Request Body (Solo Container):**
 ```json
 {
-  "clientId": "3e0a39aa-1dd5-4103-903c-f59ffd7f6f93",
-  "containerCode": "CONT001",
-  "containerType": "20FT",
-  "bookingCode": "BK001",
-  "containerType": "CONTAINER"
+  "containers": [
+    {
+      "container": "CONT001",
+      "relatedOrders": ["PO001"]
+    }
+  ]
 }
 ```
 
-**Request Body (Order):**
+**Request Body (Solo Order con Invoice):**
 ```json
 {
-  "clientId": "3e0a39aa-1dd5-4103-903c-f59ffd7f6f93",
-  "purchaseCode": "PO001",
-  "bookingCode": "BK001",
-  "orderType": "ORDER"
+  "orders": [
+    {
+      "purchase": "PO001",
+      "relatedContainers": ["CONT001"],
+      "invoices": [
+        {
+          "invoice": "INV001"
+        }
+      ]
+    }
+  ]
 }
 ```
 
-**Request Body (Invoice):**
+**Request Body (Completo - Booking, Containers, Orders, Invoices):**
 ```json
 {
-  "clientId": "3e0a39aa-1dd5-4103-903c-f59ffd7f6f93",
-  "invoiceCode": "INV001",
-  "amount": 1500.00,
-  "purchaseCode": "PO001",
-  "invoiceType": "INVOICE"
+  "booking": "BK001",
+  "containers": [
+    {
+      "container": "CONT001",
+      "relatedOrders": ["PO001", "PO002"]
+    },
+    {
+      "container": "CONT002",
+      "relatedOrders": ["PO001"]
+    }
+  ],
+  "orders": [
+    {
+      "purchase": "PO001",
+      "relatedContainers": ["CONT001", "CONT002"],
+      "invoices": [
+        {
+          "invoice": "INV001"
+        },
+        {
+          "invoice": "INV002"
+        }
+      ]
+    },
+    {
+      "purchase": "PO002",
+      "relatedContainers": ["CONT001"],
+      "invoices": [
+        {
+          "invoice": "INV003"
+        }
+      ]
+    }
+  ]
 }
 ```
 
@@ -555,7 +590,7 @@ Para facilitar las pruebas, se ha creado un archivo completo con todos los CURLs
 
 #### **1. Crear Cliente (SIN AUTENTICACIÓN)**
 ```bash
-curl --location 'http://localhost:8080/api/clients' \
+curl --location 'http://localhost:8080/api/clients/register' \
 --header 'Content-Type: application/json' \
 --data '{
     "name": "Acme Corporation",
@@ -591,9 +626,7 @@ curl --location 'http://localhost:8080/api/email' \
 --header 'Content-Type: application/json' \
 --header 'Authorization: Bearer JWT_TOKEN_OBTENIDO' \
 --data '{
-    "clientId": "CLIENT_ID",
-    "bookingCode": "BK001",
-    "bookingType": "BOOKING"
+    "booking": "BK001"
 }'
 
 # Crear Container
@@ -601,11 +634,12 @@ curl --location 'http://localhost:8080/api/email' \
 --header 'Content-Type: application/json' \
 --header 'Authorization: Bearer JWT_TOKEN_OBTENIDO' \
 --data '{
-    "clientId": "CLIENT_ID",
-    "containerCode": "CONT001",
-    "containerType": "20FT",
-    "bookingCode": "BK001",
-    "containerType": "CONTAINER"
+    "containers": [
+        {
+            "container": "CONT001",
+            "relatedOrders": ["PO001"]
+        }
+    ]
 }'
 ```
 
@@ -621,7 +655,7 @@ curl --location 'http://localhost:8080/api/containers?page=0&size=10' \
 ```
 
 ### **Endpoints SIN Autenticación**
-- `POST /api/clients` (solo para crear cliente inicial)
+- `POST /api/clients/register` (solo para crear cliente inicial)
 - `POST /api/auth/register`
 - `POST /api/auth/login`
 - `GET /actuator/health`
@@ -641,11 +675,10 @@ curl --location 'http://localhost:8080/api/containers?page=0&size=10' \
 {
   "containers": [
     {
-      "container": "MEDU1234567",
-      "relatedOrders": ["PO123", "PO456"]
+      "container": "CONT001",
+      "relatedOrders": ["PO001", "PO002"]
     }
-  ],
-  "orders": []
+  ]
 }
 ```
 **Resultado**: Crea el container y las órdenes básicas, establece las relaciones.
@@ -653,12 +686,11 @@ curl --location 'http://localhost:8080/api/containers?page=0&size=10' \
 ### Escenario 2: Orden con Containers Relacionados
 ```json
 {
-  "containers": [],
   "orders": [
     {
-      "purchase": "PO123",
-      "relatedContainers": ["MEDU1234567"],
-      "invoices": [{"invoice": "IN123"}]
+      "purchase": "PO001",
+      "relatedContainers": ["CONT001"],
+      "invoices": [{"invoice": "INV001"}]
     }
   ]
 }
@@ -668,17 +700,18 @@ curl --location 'http://localhost:8080/api/containers?page=0&size=10' \
 ### Escenario 3: Relaciones Bidireccionales
 ```json
 {
+  "booking": "BK001",
   "containers": [
     {
-      "container": "MEDU1234567",
-      "relatedOrders": ["PO123"]
+      "container": "CONT001",
+      "relatedOrders": ["PO001"]
     }
   ],
   "orders": [
     {
-      "purchase": "PO123",
-      "relatedContainers": ["MEDU1234567"],
-      "invoices": [{"invoice": "IN123"}]
+      "purchase": "PO001",
+      "relatedContainers": ["CONT001"],
+      "invoices": [{"invoice": "INV001"}]
     }
   ]
 }
@@ -688,8 +721,8 @@ curl --location 'http://localhost:8080/api/containers?page=0&size=10' \
 ### Escenario 4: Sin Relaciones (Compatibilidad)
 ```json
 {
-  "containers": [{"container": "MEDU1234567"}],
-  "orders": [{"purchase": "PO123", "invoices": [{"invoice": "IN123"}]}]
+  "containers": [{"container": "CONT001"}],
+  "orders": [{"purchase": "PO001", "invoices": [{"invoice": "INV001"}]}]
 }
 ```
 **Resultado**: Funciona igual que antes, sin relaciones explícitas.

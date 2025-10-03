@@ -17,8 +17,10 @@ curl --location 'http://localhost:8080/api/auth/register' \
 ```json
 {
     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzZTBhMzlhYS0xZGQ1LTQxMDMtOTAzYy1mNTlmZmQ3ZjZmOTMiLCJpYXQiOjE3MzU4OTU1NDksImV4cCI6MTczNTkzMTU0OX0.example",
+    "tokenType": "Bearer",
+    "expiresIn": 86400000,
     "userId": "3e0a39aa-1dd5-4103-903c-f59ffd7f6f93",
-    "clientId": "3e0a39aa-1dd5-4103-903c-f59ffd7f6f93"
+    "checksum": "example-checksum"
 }
 ```
 
@@ -36,16 +38,18 @@ curl --location 'http://localhost:8080/api/auth/login' \
 ```json
 {
     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzZTBhMzlhYS0xZGQ1LTQxMDMtOTAzYy1mNTlmZmQ3ZjZmOTMiLCJpYXQiOjE3MzU4OTU1NDksImV4cCI6MTczNTkzMTU0OX0.example",
+    "tokenType": "Bearer",
+    "expiresIn": 86400000,
     "userId": "3e0a39aa-1dd5-4103-903c-f59ffd7f6f93",
-    "clientId": "3e0a39aa-1dd5-4103-903c-f59ffd7f6f93"
+    "checksum": "example-checksum"
 }
 ```
 
 ## 👥 **2. CLIENTS ENDPOINTS**
 
-### **POST /api/clients** (SIN AUTENTICACIÓN - Solo para crear cliente inicial)
+### **POST /api/clients/register** (SIN AUTENTICACIÓN - Solo para crear cliente inicial)
 ```bash
-curl --location 'http://localhost:8080/api/clients' \
+curl --location 'http://localhost:8080/api/clients/register' \
 --header 'Content-Type: application/json' \
 --data '{
     "name": "Acme Corporation",
@@ -124,134 +128,259 @@ curl --location --request PUT 'http://localhost:8080/api/clients/3e0a39aa-1dd5-4
 
 ## 📧 **3. EMAIL PROCESSING ENDPOINTS** (TODOS CON AUTENTICACIÓN)
 
-### **POST /api/email - Booking**
+### **POST /api/email - Solo Booking**
 ```bash
 curl --location 'http://localhost:8080/api/email' \
 --header 'Content-Type: application/json' \
 --header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzZTBhMzlhYS0xZGQ1LTQxMDMtOTAzYy1mNTlmZmQ3ZjZmOTMiLCJpYXQiOjE3MzU4OTU1NDksImV4cCI6MTczNTkzMTU0OX0.example' \
 --data '{
-    "clientId": "3e0a39aa-1dd5-4103-903c-f59ffd7f6f93",
-    "bookingCode": "BK001",
-    "bookingType": "BOOKING"
+    "booking": "BK001"
 }'
 ```
 
 **Respuesta esperada:**
 ```json
 {
-    "message": "Information processed successfully",
-    "processedEntities": [
-        {
-            "type": "BOOKING",
-            "code": "BK001",
-            "status": "CREATED"
-        }
-    ],
-    "relationships": []
+    "booking": {
+        "bookingId": "770e8400-e29b-41d4-a716-446655440002",
+        "bookingCode": "BK001",
+        "clientId": "3e0a39aa-1dd5-4103-903c-f59ffd7f6f93",
+        "createdAt": "2025-10-03T11:32:29.5613207",
+        "updatedAt": "2025-10-03T11:32:29.5613207"
+    },
+    "containers": [],
+    "orders": [],
+    "invoices": [],
+    "message": "Email processed successfully"
 }
 ```
 
-### **POST /api/email - Container**
+### **POST /api/email - Solo Container**
 ```bash
 curl --location 'http://localhost:8080/api/email' \
 --header 'Content-Type: application/json' \
 --header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzZTBhMzlhYS0xZGQ1LTQxMDMtOTAzYy1mNTlmZmQ3ZjZmOTMiLCJpYXQiOjE3MzU4OTU1NDksImV4cCI6MTczNTkzMTU0OX0.example' \
 --data '{
-    "clientId": "3e0a39aa-1dd5-4103-903c-f59ffd7f6f93",
-    "containerCode": "CONT001",
-    "containerType": "20FT",
-    "bookingCode": "BK001",
-    "containerType": "CONTAINER"
+    "containers": [
+        {
+            "container": "CONT001",
+            "relatedOrders": ["PO001"]
+        }
+    ]
 }'
 ```
 
 **Respuesta esperada:**
 ```json
 {
-    "message": "Information processed successfully",
-    "processedEntities": [
+    "booking": null,
+    "containers": [
         {
-            "type": "CONTAINER",
-            "code": "CONT001",
-            "status": "CREATED"
+            "containerId": "660e8400-e29b-41d4-a716-446655440001",
+            "containerCode": "CONT001",
+            "containerType": null,
+            "clientId": "3e0a39aa-1dd5-4103-903c-f59ffd7f6f93",
+            "bookingId": null,
+            "createdAt": "2025-10-03T11:32:29.5613207",
+            "updatedAt": "2025-10-03T11:32:29.5613207"
         }
     ],
-    "relationships": [
+    "orders": [
         {
-            "from": "BK001",
-            "to": "CONT001",
-            "type": "BOOKING_CONTAINER"
+            "orderId": "550e8400-e29b-41d4-a716-446655440000",
+            "purchaseCode": "PO001",
+            "clientId": "3e0a39aa-1dd5-4103-903c-f59ffd7f6f93",
+            "bookingId": null,
+            "createdAt": "2025-10-03T11:32:29.5613207",
+            "updatedAt": "2025-10-03T11:32:29.5613207"
         }
-    ]
+    ],
+    "invoices": [],
+    "message": "Email processed successfully"
 }
 ```
 
-### **POST /api/email - Order**
+### **POST /api/email - Solo Order con Invoice**
 ```bash
 curl --location 'http://localhost:8080/api/email' \
 --header 'Content-Type: application/json' \
 --header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzZTBhMzlhYS0xZGQ1LTQxMDMtOTAzYy1mNTlmZmQ3ZjZmOTMiLCJpYXQiOjE3MzU4OTU1NDksImV4cCI6MTczNTkzMTU0OX0.example' \
 --data '{
-    "clientId": "3e0a39aa-1dd5-4103-903c-f59ffd7f6f93",
-    "purchaseCode": "PO001",
-    "bookingCode": "BK001",
-    "orderType": "ORDER"
+    "orders": [
+        {
+            "purchase": "PO001",
+            "relatedContainers": ["CONT001"],
+            "invoices": [
+                {
+                    "invoice": "INV001"
+                }
+            ]
+        }
+    ]
 }'
 ```
 
 **Respuesta esperada:**
 ```json
 {
-    "message": "Information processed successfully",
-    "processedEntities": [
+    "booking": null,
+    "containers": [
         {
-            "type": "ORDER",
-            "code": "PO001",
-            "status": "CREATED"
+            "containerId": "660e8400-e29b-41d4-a716-446655440001",
+            "containerCode": "CONT001",
+            "containerType": null,
+            "clientId": "3e0a39aa-1dd5-4103-903c-f59ffd7f6f93",
+            "bookingId": null,
+            "createdAt": "2025-10-03T11:32:29.5613207",
+            "updatedAt": "2025-10-03T11:32:29.5613207"
         }
     ],
-    "relationships": [
+    "orders": [
         {
-            "from": "BK001",
-            "to": "PO001",
-            "type": "BOOKING_ORDER"
+            "orderId": "550e8400-e29b-41d4-a716-446655440000",
+            "purchaseCode": "PO001",
+            "clientId": "3e0a39aa-1dd5-4103-903c-f59ffd7f6f93",
+            "bookingId": null,
+            "createdAt": "2025-10-03T11:32:29.5613207",
+            "updatedAt": "2025-10-03T11:32:29.5613207"
         }
-    ]
+    ],
+    "invoices": [
+        {
+            "invoiceId": "880e8400-e29b-41d4-a716-446655440003",
+            "invoiceCode": "INV001",
+            "amount": null,
+            "clientId": "3e0a39aa-1dd5-4103-903c-f59ffd7f6f93",
+            "orderId": "550e8400-e29b-41d4-a716-446655440000",
+            "createdAt": "2025-10-03T11:32:29.5613207",
+            "updatedAt": "2025-10-03T11:32:29.5613207"
+        }
+    ],
+    "message": "Email processed successfully"
 }
 ```
 
-### **POST /api/email - Invoice**
+### **POST /api/email - Completo (Booking, Containers, Orders, Invoices)**
 ```bash
 curl --location 'http://localhost:8080/api/email' \
 --header 'Content-Type: application/json' \
 --header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzZTBhMzlhYS0xZGQ1LTQxMDMtOTAzYy1mNTlmZmQ3ZjZmOTMiLCJpYXQiOjE3MzU4OTU1NDksImV4cCI6MTczNTkzMTU0OX0.example' \
 --data '{
-    "clientId": "3e0a39aa-1dd5-4103-903c-f59ffd7f6f93",
-    "invoiceCode": "INV001",
-    "amount": 1500.00,
-    "purchaseCode": "PO001",
-    "invoiceType": "INVOICE"
+    "booking": "BK001",
+    "containers": [
+        {
+            "container": "CONT001",
+            "relatedOrders": ["PO001", "PO002"]
+        },
+        {
+            "container": "CONT002",
+            "relatedOrders": ["PO001"]
+        }
+    ],
+    "orders": [
+        {
+            "purchase": "PO001",
+            "relatedContainers": ["CONT001", "CONT002"],
+            "invoices": [
+                {
+                    "invoice": "INV001"
+                },
+                {
+                    "invoice": "INV002"
+                }
+            ]
+        },
+        {
+            "purchase": "PO002",
+            "relatedContainers": ["CONT001"],
+            "invoices": [
+                {
+                    "invoice": "INV003"
+                }
+            ]
+        }
+    ]
 }'
 ```
 
 **Respuesta esperada:**
 ```json
 {
-    "message": "Information processed successfully",
-    "processedEntities": [
+    "booking": {
+        "bookingId": "770e8400-e29b-41d4-a716-446655440002",
+        "bookingCode": "BK001",
+        "clientId": "3e0a39aa-1dd5-4103-903c-f59ffd7f6f93",
+        "createdAt": "2025-10-03T11:32:29.5613207",
+        "updatedAt": "2025-10-03T11:32:29.5613207"
+    },
+    "containers": [
         {
-            "type": "INVOICE",
-            "code": "INV001",
-            "status": "CREATED"
+            "containerId": "660e8400-e29b-41d4-a716-446655440001",
+            "containerCode": "CONT001",
+            "containerType": null,
+            "clientId": "3e0a39aa-1dd5-4103-903c-f59ffd7f6f93",
+            "bookingId": "770e8400-e29b-41d4-a716-446655440002",
+            "createdAt": "2025-10-03T11:32:29.5613207",
+            "updatedAt": "2025-10-03T11:32:29.5613207"
+        },
+        {
+            "containerId": "660e8400-e29b-41d4-a716-446655440002",
+            "containerCode": "CONT002",
+            "containerType": null,
+            "clientId": "3e0a39aa-1dd5-4103-903c-f59ffd7f6f93",
+            "bookingId": "770e8400-e29b-41d4-a716-446655440002",
+            "createdAt": "2025-10-03T11:32:29.5613207",
+            "updatedAt": "2025-10-03T11:32:29.5613207"
         }
     ],
-    "relationships": [
+    "orders": [
         {
-            "from": "PO001",
-            "to": "INV001",
-            "type": "ORDER_INVOICE"
+            "orderId": "550e8400-e29b-41d4-a716-446655440000",
+            "purchaseCode": "PO001",
+            "clientId": "3e0a39aa-1dd5-4103-903c-f59ffd7f6f93",
+            "bookingId": "770e8400-e29b-41d4-a716-446655440002",
+            "createdAt": "2025-10-03T11:32:29.5613207",
+            "updatedAt": "2025-10-03T11:32:29.5613207"
+        },
+        {
+            "orderId": "550e8400-e29b-41d4-a716-446655440001",
+            "purchaseCode": "PO002",
+            "clientId": "3e0a39aa-1dd5-4103-903c-f59ffd7f6f93",
+            "bookingId": "770e8400-e29b-41d4-a716-446655440002",
+            "createdAt": "2025-10-03T11:32:29.5613207",
+            "updatedAt": "2025-10-03T11:32:29.5613207"
         }
-    ]
+    ],
+    "invoices": [
+        {
+            "invoiceId": "880e8400-e29b-41d4-a716-446655440003",
+            "invoiceCode": "INV001",
+            "amount": null,
+            "clientId": "3e0a39aa-1dd5-4103-903c-f59ffd7f6f93",
+            "orderId": "550e8400-e29b-41d4-a716-446655440000",
+            "createdAt": "2025-10-03T11:32:29.5613207",
+            "updatedAt": "2025-10-03T11:32:29.5613207"
+        },
+        {
+            "invoiceId": "880e8400-e29b-41d4-a716-446655440004",
+            "invoiceCode": "INV002",
+            "amount": null,
+            "clientId": "3e0a39aa-1dd5-4103-903c-f59ffd7f6f93",
+            "orderId": "550e8400-e29b-41d4-a716-446655440000",
+            "createdAt": "2025-10-03T11:32:29.5613207",
+            "updatedAt": "2025-10-03T11:32:29.5613207"
+        },
+        {
+            "invoiceId": "880e8400-e29b-41d4-a716-446655440005",
+            "invoiceCode": "INV003",
+            "amount": null,
+            "clientId": "3e0a39aa-1dd5-4103-903c-f59ffd7f6f93",
+            "orderId": "550e8400-e29b-41d4-a716-446655440001",
+            "createdAt": "2025-10-03T11:32:29.5613207",
+            "updatedAt": "2025-10-03T11:32:29.5613207"
+        }
+    ],
+    "message": "Email processed successfully"
 }
 ```
 
@@ -278,14 +407,14 @@ curl --location 'http://localhost:8080/api/orders?page=0&size=20&sort=createdAt,
                 {
                     "containerId": "660e8400-e29b-41d4-a716-446655440001",
                     "containerCode": "CONT001",
-                    "containerType": "20FT"
+                    "containerType": null
                 }
             ],
             "invoices": [
                 {
                     "invoiceId": "880e8400-e29b-41d4-a716-446655440003",
                     "invoiceCode": "INV001",
-                    "amount": 1500.00
+                    "amount": null
                 }
             ]
         }
@@ -320,14 +449,14 @@ curl --location 'http://localhost:8080/api/orders/550e8400-e29b-41d4-a716-446655
         {
             "containerId": "660e8400-e29b-41d4-a716-446655440001",
             "containerCode": "CONT001",
-            "containerType": "20FT"
+            "containerType": null
         }
     ],
     "invoices": [
         {
             "invoiceId": "880e8400-e29b-41d4-a716-446655440003",
             "invoiceCode": "INV001",
-            "amount": 1500.00
+            "amount": null
         }
     ]
 }
@@ -345,7 +474,7 @@ curl --location 'http://localhost:8080/api/orders/550e8400-e29b-41d4-a716-446655
     {
         "containerId": "660e8400-e29b-41d4-a716-446655440001",
         "containerCode": "CONT001",
-        "containerType": "20FT",
+        "containerType": null,
         "clientId": "3e0a39aa-1dd5-4103-903c-f59ffd7f6f93",
         "bookingId": "770e8400-e29b-41d4-a716-446655440002",
         "createdAt": "2025-10-03T11:32:29.5613207",
@@ -369,7 +498,7 @@ curl --location 'http://localhost:8080/api/containers?page=0&size=20&sort=create
         {
             "containerId": "660e8400-e29b-41d4-a716-446655440001",
             "containerCode": "CONT001",
-            "containerType": "20FT",
+            "containerType": null,
             "clientId": "3e0a39aa-1dd5-4103-903c-f59ffd7f6f93",
             "bookingId": "770e8400-e29b-41d4-a716-446655440002",
             "createdAt": "2025-10-03T11:32:29.5613207",
@@ -404,7 +533,7 @@ curl --location 'http://localhost:8080/api/containers/660e8400-e29b-41d4-a716-44
 {
     "containerId": "660e8400-e29b-41d4-a716-446655440001",
     "containerCode": "CONT001",
-    "containerType": "20FT",
+    "containerType": null,
     "clientId": "3e0a39aa-1dd5-4103-903c-f59ffd7f6f93",
     "bookingId": "770e8400-e29b-41d4-a716-446655440002",
     "createdAt": "2025-10-03T11:32:29.5613207",
@@ -480,14 +609,14 @@ curl --location 'http://localhost:8080/actuator/health'
 3. **Reemplaza** `http://localhost:8080` con `{{baseUrl}}` en todos los CURLs
 
 ### **Flujo de Testing Recomendado:**
-1. **Crear cliente** (POST /api/clients) - SIN autenticación
+1. **Crear cliente** (POST /api/clients/register) - SIN autenticación
 2. **Registrar usuario** (POST /api/auth/register) - SIN autenticación
 3. **Login** (POST /api/auth/login) - SIN autenticación
 4. **Procesar datos logísticos** (POST /api/email) - CON autenticación
 5. **Consultar datos** (GET endpoints) - CON autenticación
 
 ### **Notas Importantes:**
-- **Solo el endpoint POST /api/clients NO requiere autenticación** (para crear el cliente inicial)
+- **Solo el endpoint POST /api/clients/register NO requiere autenticación** (para crear el cliente inicial)
 - **Todos los demás endpoints de clients requieren autenticación**
 - **Todos los endpoints de email processing requieren autenticación**
 - **Todos los endpoints de orders y containers requieren autenticación**
@@ -530,44 +659,79 @@ curl --location 'http://localhost:8080/actuator/health'
 }
 ```
 
-### **EmailRequestDto - Booking**
+### **EmailRequestDto - Solo Booking**
 ```json
 {
-    "clientId": "3e0a39aa-1dd5-4103-903c-f59ffd7f6f93",
-    "bookingCode": "BK001",
-    "bookingType": "BOOKING"
+    "booking": "BK001"
 }
 ```
 
-### **EmailRequestDto - Container**
+### **EmailRequestDto - Solo Container**
 ```json
 {
-    "clientId": "3e0a39aa-1dd5-4103-903c-f59ffd7f6f93",
-    "containerCode": "CONT001",
-    "containerType": "20FT",
-    "bookingCode": "BK001",
-    "containerType": "CONTAINER"
+    "containers": [
+        {
+            "container": "CONT001",
+            "relatedOrders": ["PO001"]
+        }
+    ]
 }
 ```
 
-### **EmailRequestDto - Order**
+### **EmailRequestDto - Solo Order con Invoice**
 ```json
 {
-    "clientId": "3e0a39aa-1dd5-4103-903c-f59ffd7f6f93",
-    "purchaseCode": "PO001",
-    "bookingCode": "BK001",
-    "orderType": "ORDER"
+    "orders": [
+        {
+            "purchase": "PO001",
+            "relatedContainers": ["CONT001"],
+            "invoices": [
+                {
+                    "invoice": "INV001"
+                }
+            ]
+        }
+    ]
 }
 ```
 
-### **EmailRequestDto - Invoice**
+### **EmailRequestDto - Completo**
 ```json
 {
-    "clientId": "3e0a39aa-1dd5-4103-903c-f59ffd7f6f93",
-    "invoiceCode": "INV001",
-    "amount": 1500.00,
-    "purchaseCode": "PO001",
-    "invoiceType": "INVOICE"
+    "booking": "BK001",
+    "containers": [
+        {
+            "container": "CONT001",
+            "relatedOrders": ["PO001", "PO002"]
+        },
+        {
+            "container": "CONT002",
+            "relatedOrders": ["PO001"]
+        }
+    ],
+    "orders": [
+        {
+            "purchase": "PO001",
+            "relatedContainers": ["CONT001", "CONT002"],
+            "invoices": [
+                {
+                    "invoice": "INV001"
+                },
+                {
+                    "invoice": "INV002"
+                }
+            ]
+        },
+        {
+            "purchase": "PO002",
+            "relatedContainers": ["CONT001"],
+            "invoices": [
+                {
+                    "invoice": "INV003"
+                }
+            ]
+        }
+    ]
 }
 ```
 
@@ -575,7 +739,7 @@ curl --location 'http://localhost:8080/actuator/health'
 
 ## ⚠️ **NOTAS DE SEGURIDAD**
 
-- **POST /api/clients**: NO requiere autenticación (solo para crear cliente inicial)
+- **POST /api/clients/register**: NO requiere autenticación (solo para crear cliente inicial)
 - **GET /api/clients**: REQUIERE autenticación
 - **GET /api/clients/{id}**: REQUIERE autenticación  
 - **PUT /api/clients/{id}**: REQUIERE autenticación
