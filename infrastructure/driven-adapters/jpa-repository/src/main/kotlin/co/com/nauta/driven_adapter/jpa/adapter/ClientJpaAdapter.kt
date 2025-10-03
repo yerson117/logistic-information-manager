@@ -33,4 +33,9 @@ class ClientJpaAdapter(
         return clientJpaRepository.findByEmail(email)
             ?.let { clientMapper.toDomain(it) }
     }
+    
+    override fun findAll(): List<Client> {
+        return clientJpaRepository.findAll()
+            .map { clientMapper.toDomain(it) }
+    }
 }

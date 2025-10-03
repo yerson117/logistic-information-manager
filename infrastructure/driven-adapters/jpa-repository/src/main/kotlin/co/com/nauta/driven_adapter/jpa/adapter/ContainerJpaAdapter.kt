@@ -1,11 +1,15 @@
 package co.com.nauta.driven_adapter.jpa.adapter
 
+import co.com.nauta.driven_adapter.jpa.entity.ContainerEntity
 import co.com.nauta.driven_adapter.jpa.mapper.ContainerMapper
 import co.com.nauta.driven_adapter.jpa.repository.ContainerJpaRepository
 import co.com.nauta.model.bo.Container
 import co.com.nauta.usecase.port.ContainerPort
 import co.com.nauta.usecase.port.Page
 import co.com.nauta.usecase.port.Pageable
+import co.com.nauta.usecase.port.SortDirection
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
 import org.springframework.data.domain.Page as SpringPage
 import org.springframework.data.domain.Pageable as SpringPageable
 import org.springframework.stereotype.Component
@@ -44,13 +48,10 @@ class ContainerJpaAdapter(
     }
     
     override fun findByClient(clientId: UUID, pageable: Pageable): Page<Container> {
-        // Convertir domain Pageable a Spring Pageable
         val springPageable = convertToSpringPageable(pageable)
         
-        // Obtener página de Spring
         val springPage = containerJpaRepository.findByClientId(clientId, springPageable)
         
-        // Convertir a domain Page
         return convertToDomainPage(springPage)
     }
     
@@ -65,31 +66,28 @@ class ContainerJpaAdapter(
     }
     
     override fun findByOrder(orderId: UUID, pageable: Pageable): Page<Container> {
-        // Convertir domain Pageable a Spring Pageable
         val springPageable = convertToSpringPageable(pageable)
-        
-        // Obtener página de Spring
+
         val springPage = containerJpaRepository.findByOrderId(orderId, springPageable)
-        
-        // Convertir a domain Page
+
         return convertToDomainPage(springPage)
     }
     
     private fun convertToSpringPageable(domainPageable: Pageable): SpringPageable {
-        return org.springframework.data.domain.PageRequest.of(
+        return PageRequest.of(
             domainPageable.page,
             domainPageable.size,
             domainPageable.sort?.let { sort ->
                 val direction = when (sort.direction) {
-                    co.com.nauta.usecase.port.SortDirection.ASC -> org.springframework.data.domain.Sort.Direction.ASC
-                    co.com.nauta.usecase.port.SortDirection.DESC -> org.springframework.data.domain.Sort.Direction.DESC
+                    SortDirection.ASC -> Sort.Direction.ASC
+                    SortDirection.DESC -> Sort.Direction.DESC
                 }
-                org.springframework.data.domain.Sort.by(direction, sort.property)
-            } ?: org.springframework.data.domain.Sort.unsorted()
+                Sort.by(direction, sort.property)
+            } ?: Sort.unsorted()
         )
     }
     
-    private fun convertToDomainPage(springPage: SpringPage<co.com.nauta.driven_adapter.jpa.entity.ContainerEntity>): Page<Container> {
+    private fun convertToDomainPage(springPage: SpringPage<ContainerEntity>): Page<Container> {
         return object : Page<Container> {
             override val content: List<Container> = springPage.content.map { containerMapper.toDomain(it) }
             override val page: Int = springPage.number

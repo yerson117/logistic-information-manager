@@ -5,7 +5,6 @@ import java.util.UUID
 
 /**
  * Port for Booking operations
- * Following hexagonal architecture principles - one port per entity
  */
 interface BookingPort {
     fun save(booking: Booking): Booking

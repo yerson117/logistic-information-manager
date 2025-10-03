@@ -5,7 +5,6 @@ import java.util.UUID
 
 /**
  * Port for OrderContainer operations (junction table)
- * Following hexagonal architecture principles - one port per entity
  */
 interface OrderContainerPort {
     fun save(orderContainer: OrderContainer): OrderContainer

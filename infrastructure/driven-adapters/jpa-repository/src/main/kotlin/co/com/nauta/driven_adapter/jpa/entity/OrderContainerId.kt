@@ -11,6 +11,5 @@ data class OrderContainerId(
     val orderId: UUID,
     val containerId: UUID
 ) : Serializable {
-    // Default constructor for JPA
     constructor() : this(UUID.randomUUID(), UUID.randomUUID())
 }
