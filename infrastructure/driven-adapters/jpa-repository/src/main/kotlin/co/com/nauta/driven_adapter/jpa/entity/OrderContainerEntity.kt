@@ -30,6 +30,5 @@ data class OrderContainerEntity(
     @Column(name = "updated_at", nullable = false)
     val updatedAt: LocalDateTime
 ) {
-    // Default constructor for JPA
     constructor() : this(UUID.randomUUID(), UUID.randomUUID(), LocalDateTime.now(), LocalDateTime.now())
 }

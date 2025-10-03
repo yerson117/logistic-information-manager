@@ -5,7 +5,6 @@ import java.util.UUID
 
 /**
  * Port for Order operations
- * Following hexagonal architecture principles - one port per entity
  */
 interface OrderPort {
     fun save(order: Order): Order

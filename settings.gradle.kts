@@ -38,3 +38,6 @@ project(":rest-api").projectDir = file("./infrastructure/entry-points/rest-api")
 
 include(":jpa-repository")
 project(":jpa-repository").projectDir = file("./infrastructure/driven-adapters/jpa-repository")
+
+include(":utility")
+project(":utility").projectDir = file("./infrastructure/helpers/utility")

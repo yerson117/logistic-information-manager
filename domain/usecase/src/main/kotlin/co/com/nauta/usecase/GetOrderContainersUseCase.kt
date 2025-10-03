@@ -18,13 +18,8 @@ class GetOrderContainersUseCase(
      * Get all containers associated with a specific order
      */
     fun getContainersByOrder(orderId: UUID): List<Container> {
-        // First verify that the order exists
-        val order = orderPort.findById(orderId)
-        if (order == null) {
-            return emptyList()
-        }
-        
-        // Get containers associated with this order
+        orderPort.findById(orderId) ?: return emptyList()
+
         return containerPort.findByOrder(orderId)
     }
     

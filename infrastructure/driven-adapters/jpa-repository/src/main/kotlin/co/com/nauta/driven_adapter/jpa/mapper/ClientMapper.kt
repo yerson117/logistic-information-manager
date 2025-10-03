@@ -16,6 +16,8 @@ class ClientMapper {
             uuid = clientEntity.clientId
             name = clientEntity.name
             email = clientEntity.email
+            createdAt = clientEntity.createdAt
+            updatedAt = clientEntity.updatedAt
         }
     }
     
@@ -23,7 +25,9 @@ class ClientMapper {
         return ClientEntity(
             clientId = client.uuid,
             name = client.name ?: throw IllegalArgumentException("Client name cannot be null"),
-            email = client.email ?: throw IllegalArgumentException("Client email cannot be null")
+            email = client.email ?: throw IllegalArgumentException("Client email cannot be null"),
+            createdAt = client.createdAt!!,
+            updatedAt = client.updatedAt!!
         )
     }
 }

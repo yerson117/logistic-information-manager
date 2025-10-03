@@ -2,7 +2,9 @@ package co.com.nauta.rest_api.controller
 
 import co.com.nauta.rest_api.dto.AuthRequestDto
 import co.com.nauta.rest_api.dto.AuthResponseDto
+import co.com.nauta.rest_api.dto.RegisterRequestDto
 import co.com.nauta.rest_api.service.JwtService
+import co.com.nauta.usecase.AuthenticationUseCase
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
@@ -13,12 +15,10 @@ import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
-import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import java.util.Objects.nonNull
 import java.util.UUID
 
 @RestController
@@ -26,13 +26,13 @@ import java.util.UUID
 @Tag(name = "Authentication", description = "Endpoints para autenticación y generación de tokens JWT")
 class AuthController(
     private val jwtService: JwtService,
-    private val passwordEncoder: PasswordEncoder
+    private val authenticationUseCase: AuthenticationUseCase
 ) {
 
     @PostMapping("/login", consumes = [MediaType.APPLICATION_JSON_VALUE])
     @Operation(
         summary = "Iniciar sesión",
-        description = "Autentica un usuario y genera un token JWT. Para propósitos de demo, acepta cualquier userId/password."
+        description = "Autentica un usuario con email y contraseña, genera un token JWT."
     )
     @ApiResponses(
         value = [
@@ -52,19 +52,23 @@ class AuthController(
     )
     fun login(@Valid @RequestBody authRequest: AuthRequestDto): ResponseEntity<AuthResponseDto> {
         return try {
-            val userId = authRequest.userId
+            val user = authenticationUseCase.authenticate(
+                authRequest.email, 
+                authRequest.password
+            )
             
-            if (nonNull(userId)) {
+            if (user == null) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()
             }
             
-            val token = jwtService.generateToken(userId)
+            val clientId = user.clientId!!
+            val token = jwtService.generateToken(clientId)
             val checksum = jwtService.extractChecksum(token)
             
             val response = AuthResponseDto(
                 token = token,
                 expiresIn = jwtService.getExpirationTime(),
-                userId = userId,
+                userId = clientId,
                 checksum = checksum
             )
             
@@ -72,6 +76,57 @@ class AuthController(
             
         } catch (e: Exception) {
             ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()
+        }
+    }
+
+    @PostMapping("/register", consumes = [MediaType.APPLICATION_JSON_VALUE])
+    @Operation(
+        summary = "Registrar usuario",
+        description = "Registra un nuevo usuario con email, contraseña y clientId."
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "Usuario registrado exitosamente",
+                content = [Content(
+                    mediaType = "application/json",
+                    schema = Schema(implementation = AuthResponseDto::class)
+                )]
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = "Datos de registro inválidos"
+            ),
+            ApiResponse(
+                responseCode = "409",
+                description = "Usuario ya existe"
+            )
+        ]
+    )
+    fun register(@Valid @RequestBody registerRequest: RegisterRequestDto): ResponseEntity<AuthResponseDto> {
+        return try {
+            val user = authenticationUseCase.register(
+                registerRequest.email,
+                registerRequest.password,
+                registerRequest.clientId
+            )
+            
+            val clientId = user.clientId!!
+            val token = jwtService.generateToken(clientId)
+            val checksum = jwtService.extractChecksum(token)
+            
+            val response = AuthResponseDto(
+                token = token,
+                expiresIn = jwtService.getExpirationTime(),
+                userId = clientId,
+                checksum = checksum
+            )
+            
+            ResponseEntity.ok(response)
+            
+        } catch (e: Exception) {
+            ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
         }
     }
 

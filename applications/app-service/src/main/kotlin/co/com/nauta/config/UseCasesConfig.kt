@@ -1,10 +1,24 @@
 package co.com.nauta.config
 
+import co.com.nauta.usecase.AuthenticationUseCase
+import co.com.nauta.usecase.CreateClientUseCase
+import co.com.nauta.usecase.GetClientUseCase
+import co.com.nauta.usecase.GetContainersUseCase
+import co.com.nauta.usecase.GetOrdersUseCase
 import co.com.nauta.usecase.ProcessBookingUseCase
 import co.com.nauta.usecase.ProcessContainerUseCase
 import co.com.nauta.usecase.ProcessEmailUseCase
 import co.com.nauta.usecase.ProcessInvoiceUseCase
 import co.com.nauta.usecase.ProcessOrderUseCase
+import co.com.nauta.usecase.UpdateClientUseCase
+import co.com.nauta.usecase.port.BookingPort
+import co.com.nauta.usecase.port.ClientPort
+import co.com.nauta.usecase.port.ContainerPort
+import co.com.nauta.usecase.port.EncryptionPort
+import co.com.nauta.usecase.port.InvoicePort
+import co.com.nauta.usecase.port.OrderContainerPort
+import co.com.nauta.usecase.port.OrderPort
+import co.com.nauta.usecase.port.UserPort
 import lombok.RequiredArgsConstructor
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -14,28 +28,28 @@ import org.springframework.context.annotation.Configuration
 class UseCasesConfig {
 
     @Bean
-    fun processBookingUseCase(bookingPort: co.com.nauta.usecase.port.BookingPort): ProcessBookingUseCase {
+    fun processBookingUseCase(bookingPort: BookingPort): ProcessBookingUseCase {
         return ProcessBookingUseCase(bookingPort)
     }
 
     @Bean
     fun processContainerUseCase(
-        containerPort: co.com.nauta.usecase.port.ContainerPort,
-        orderContainerPort: co.com.nauta.usecase.port.OrderContainerPort
+        containerPort: ContainerPort,
+        orderContainerPort: OrderContainerPort
     ): ProcessContainerUseCase {
         return ProcessContainerUseCase(containerPort, orderContainerPort)
     }
 
     @Bean
     fun processOrderUseCase(
-        orderPort: co.com.nauta.usecase.port.OrderPort,
-        orderContainerPort: co.com.nauta.usecase.port.OrderContainerPort
+        orderPort: OrderPort,
+        orderContainerPort: OrderContainerPort
     ): ProcessOrderUseCase {
         return ProcessOrderUseCase(orderPort, orderContainerPort)
     }
 
     @Bean
-    fun processInvoiceUseCase(invoicePort: co.com.nauta.usecase.port.InvoicePort): ProcessInvoiceUseCase {
+    fun processInvoiceUseCase(invoicePort: InvoicePort): ProcessInvoiceUseCase {
         return ProcessInvoiceUseCase(invoicePort)
     }
 
@@ -45,8 +59,8 @@ class UseCasesConfig {
         processContainerUseCase: ProcessContainerUseCase,
         processOrderUseCase: ProcessOrderUseCase,
         processInvoiceUseCase: ProcessInvoiceUseCase,
-        containerPort: co.com.nauta.usecase.port.ContainerPort,
-        orderPort: co.com.nauta.usecase.port.OrderPort
+        containerPort: ContainerPort,
+        orderPort: OrderPort
     ): ProcessEmailUseCase {
         return ProcessEmailUseCase(
             processBookingUseCase,
@@ -60,18 +74,48 @@ class UseCasesConfig {
 
     @Bean
     fun getOrdersUseCase(
-        orderPort: co.com.nauta.usecase.port.OrderPort,
-        containerPort: co.com.nauta.usecase.port.ContainerPort,
-        invoicePort: co.com.nauta.usecase.port.InvoicePort
-    ): co.com.nauta.usecase.GetOrdersUseCase {
-        return co.com.nauta.usecase.GetOrdersUseCase(orderPort, containerPort, invoicePort)
+        orderPort: OrderPort,
+        containerPort: ContainerPort,
+        invoicePort: InvoicePort
+    ): GetOrdersUseCase {
+        return GetOrdersUseCase(orderPort, containerPort, invoicePort)
     }
 
     @Bean
     fun getContainersUseCase(
-        containerPort: co.com.nauta.usecase.port.ContainerPort,
-        orderPort: co.com.nauta.usecase.port.OrderPort
-    ): co.com.nauta.usecase.GetContainersUseCase {
-        return co.com.nauta.usecase.GetContainersUseCase(containerPort, orderPort)
+        containerPort: ContainerPort,
+        orderPort: OrderPort
+    ): GetContainersUseCase {
+        return GetContainersUseCase(containerPort, orderPort)
+    }
+    
+    @Bean
+    fun authenticationUseCase(
+        userPort: UserPort,
+        encryptionPort: EncryptionPort,
+        clientPort: ClientPort
+    ): AuthenticationUseCase {
+        return AuthenticationUseCase(userPort, encryptionPort, clientPort)
+    }
+
+    @Bean
+    fun createClientUseCase(
+        clientPort: ClientPort
+    ): CreateClientUseCase {
+        return CreateClientUseCase(clientPort)
+    }
+
+    @Bean
+    fun getClientUseCase(
+        clientPort: ClientPort
+    ): GetClientUseCase {
+        return GetClientUseCase(clientPort)
+    }
+
+    @Bean
+    fun updateClientUseCase(
+        clientPort: ClientPort
+    ): UpdateClientUseCase {
+        return UpdateClientUseCase(clientPort)
     }
 }

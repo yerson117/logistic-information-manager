@@ -50,7 +50,7 @@ class AuthControllerIntegrationTest {
     fun `should return bad request for empty password in login`() {
         // Given
         val request = AuthRequestDto(
-            userId = UUID.randomUUID(),
+            email = "test@example.com",
             password = ""
         )
 
