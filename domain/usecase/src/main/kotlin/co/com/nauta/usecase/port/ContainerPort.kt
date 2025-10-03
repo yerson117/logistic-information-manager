@@ -5,7 +5,6 @@ import java.util.UUID
 
 /**
  * Port for Container operations
- * Following hexagonal architecture principles - one port per entity
  */
 interface ContainerPort {
     fun save(container: Container): Container

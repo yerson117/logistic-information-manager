@@ -4,6 +4,7 @@ import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
 import jakarta.persistence.Table
+import lombok.AllArgsConstructor
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -30,6 +31,5 @@ data class BookingEntity(
     @Column(name = "updated_at", nullable = false)
     val updatedAt: LocalDateTime
 ) {
-    // Default constructor for JPA
     constructor() : this(UUID.randomUUID(), UUID.randomUUID(), "", LocalDateTime.now(), LocalDateTime.now())
 }

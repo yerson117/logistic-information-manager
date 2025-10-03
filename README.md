@@ -351,6 +351,23 @@ curl -X GET "http://localhost:8080/api/orders/{purchaseCode}/containers?page=0&s
 ./gradlew :app-service:bootRun
 ```
 
+### Variables de Entorno
+La aplicación utiliza las siguientes variables de entorno para configuración:
+
+```bash
+# JWT Configuration (OBLIGATORIO en producción)
+export JWT_SECRET="your-super-secret-key-at-least-32-characters-long"
+export JWT_EXPIRATION="86400000"  # 24 horas en milisegundos
+
+# Ejecutar con variables de entorno
+JWT_SECRET="your-secret-key" JWT_EXPIRATION="86400000" ./gradlew :app-service:bootRun
+```
+
+**⚠️ IMPORTANTE**: 
+- En **desarrollo**: Se usan valores por defecto si no se configuran las variables
+- En **producción**: Es **OBLIGATORIO** configurar `JWT_SECRET` con una clave segura de al menos 32 caracteres
+- El `JWT_SECRET` por defecto es solo para desarrollo y NO debe usarse en producción
+
 ### Documentación API con Swagger
 Una vez que la aplicación esté ejecutándose, puedes acceder a la documentación interactiva de la API:
 

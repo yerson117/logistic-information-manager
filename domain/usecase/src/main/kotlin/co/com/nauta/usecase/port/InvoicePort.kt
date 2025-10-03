@@ -5,7 +5,6 @@ import java.util.UUID
 
 /**
  * Port for Invoice operations
- * Following hexagonal architecture principles - one port per entity
  */
 interface InvoicePort {
     fun save(invoice: Invoice): Invoice

@@ -30,6 +30,7 @@ class SecurityConfig(
             .authorizeHttpRequests { authz ->
                 authz
                     .requestMatchers("/api/auth/**").permitAll()
+                    .requestMatchers("/api/clients/**").permitAll() // Temporal para pruebas
                     .requestMatchers("/actuator/health").permitAll()
                     .requestMatchers("/actuator/info").permitAll()
                     .requestMatchers("/swagger-ui/**").permitAll()

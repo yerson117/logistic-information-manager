@@ -3,6 +3,7 @@ dependencies {
     implementation(project(":usecase"))
     implementation(project(":rest-api"))
     implementation(project(":jpa-repository"))
+    implementation(project(":utility"))
 
     implementation("org.springframework.boot:spring-boot-starter-aop")
     implementation("org.springframework.boot:spring-boot-starter-actuator")

@@ -37,6 +37,5 @@ data class InvoiceEntity(
     @Column(name = "updated_at", nullable = false)
     val updatedAt: LocalDateTime
 ) {
-    // Default constructor for JPA
     constructor() : this(UUID.randomUUID(), UUID.randomUUID(), null, "", BigDecimal.ZERO, LocalDateTime.now(), LocalDateTime.now())
 }

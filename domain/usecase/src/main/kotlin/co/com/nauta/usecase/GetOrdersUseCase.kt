@@ -42,13 +42,6 @@ class GetOrdersUseCase(
     }
     
     /**
-     * Get order by purchase code for a specific client
-     */
-    fun getOrderByPurchaseCode(clientId: UUID, purchaseCode: String): Order? {
-        return orderPort.findByPurchaseCode(clientId, purchaseCode)
-    }
-    
-    /**
      * Get order by purchase code for a specific client, throwing exception if not found
      */
     fun getOrderByPurchaseCodeOrThrow(clientId: UUID, purchaseCode: String): Order {
